@@ -21,7 +21,7 @@ class PackageScannerAPIClient:
         self.host = config_data["host"]
         self.port = config_data["port"]
         self.api_key = config_data["api_key"]
-        self.base_url = f"http://{self.host}:{self.port}/api"
+        self.base_url = f"http://{self.host}:{self.port}"
 
     def register_pc_client_with_scanner(self, port: int, api_key: str):
         local_ip = self.get_local_ip()

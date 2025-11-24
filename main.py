@@ -3,6 +3,7 @@ from api_server import APIServer
 from package_scanner_api_client import PackageScannerAPIClient
 from shipstation_api_client import ShipStationAPIClient
 from time import sleep
+import threading
 
 import logging
 # init logging
@@ -34,7 +35,9 @@ logger.info("Logger initialised")
 
 def main():
     # shipstation_api_client = ShipStationAPIClient()
-    api_server = APIServer()
+    shutdown_event = threading.Event()
+    api_server = APIServer(shutdown_event)
+    api_server_thread = threading.Thread(target=api_server.run_api_server, daemon=True)
     package_scanner_api_client = PackageScannerAPIClient()
 
     logger.info("Registering PC client with package scanner API...")
@@ -49,7 +52,15 @@ def main():
         sleep(5)
 
     logger.info("Starting API server...")
-    api_server.run_api_server()
+    api_server_thread.start()
+    try:
+        while True:
+            sleep(1)
+    finally:
+        logger.info("Shutdown signal received. Shutting down...")
+        shutdown_event.set()
+        api_server_thread.join()
+        logger.info("Companion client shut down gracefully.")
 
 
 if __name__ == "__main__":

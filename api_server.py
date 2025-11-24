@@ -4,12 +4,14 @@ from pydantic import BaseModel
 from configloader import ConfigLoader
 import webbrowser
 import uuid
+import threading
 
 import logging
 logger = logging.getLogger(__name__)
 
 class APIServer:
-    def __init__(self):
+    def __init__(self, shutdown_event: threading.Event):
+        self.shutdown_event = shutdown_event
         self.app = FastAPI()
         self.api_host = "0.0.0.0"
         self.api_port = 8000
@@ -47,7 +49,14 @@ class APIServer:
         )
 
         server = uvicorn.Server(config)
+        def watch_for_shutdown():
+            self.shutdown_event.wait()
+            server.should_exit = True
+        
+        watcher = threading.Thread(target=watch_for_shutdown, daemon=True)
+        watcher.start()
         server.run()
+        logger.info("API server shut down.")
 
 class OpenOrderRequest(BaseModel):
     order_number: int
