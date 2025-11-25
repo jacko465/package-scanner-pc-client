@@ -38,6 +38,7 @@ class PackageScannerAPIClient:
         }
 
         try:
+            logger.debug(f"Registering PC client at {local_ip}:{port} with package scanner API...")
             response = requests.post(url, json=data, headers=headers)
             response.raise_for_status()
             logger.info("Successfully registered PC client with package scanner.")

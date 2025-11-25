@@ -37,6 +37,7 @@ class APIServer:
 
     def open_order_search_webpage(self, order_number: str):
         url = f"https://ship14.shipstation.com/orders/all-orders-search-result?quickSearch={order_number}"
+        logger.debug(f"Opening order webpage: {url}")
         webbrowser.open(url)
 
     def run_api_server(self):

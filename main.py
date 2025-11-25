@@ -16,7 +16,7 @@ file_handler = RotatingFileHandler(
     maxBytes=10*1024*1024,  # 10 MB
     backupCount=2
 )
-file_handler.setLevel(logging.ERROR)
+file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
 
 # console log handler
