@@ -44,7 +44,8 @@ def main():
     while True:
         if package_scanner_api_client.register_pc_client_with_scanner(
             port=api_server.api_port,
-            api_key=api_server.api_key
+            api_key=api_server.api_key,
+            local_ip=api_server.local_ip
         ):
             logger.info("PC client successfully registered with package scanner API.")
             break
