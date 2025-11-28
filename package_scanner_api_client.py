@@ -23,8 +23,9 @@ class PackageScannerAPIClient:
         self.api_key = config_data["api_key"]
         self.base_url = f"http://{self.host}:{self.port}"
 
-    def register_pc_client_with_scanner(self, port: int, api_key: str):
-        local_ip = self.get_local_ip()
+    def register_pc_client_with_scanner(self, port: int, api_key: str, local_ip: str = None):
+        # if local_ip is None:
+        #     local_ip = self.get_local_ip()
         url = f"{self.base_url}/register_companion_client"
         
         data = {
@@ -38,6 +39,7 @@ class PackageScannerAPIClient:
         }
 
         try:
+            logger.debug(f"Registering PC client at {local_ip}:{port} with package scanner API...")
             response = requests.post(url, json=data, headers=headers)
             response.raise_for_status()
             logger.info("Successfully registered PC client with package scanner.")

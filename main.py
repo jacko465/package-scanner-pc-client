@@ -16,7 +16,7 @@ file_handler = RotatingFileHandler(
     maxBytes=10*1024*1024,  # 10 MB
     backupCount=2
 )
-file_handler.setLevel(logging.ERROR)
+file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
 
 # console log handler
@@ -44,7 +44,8 @@ def main():
     while True:
         if package_scanner_api_client.register_pc_client_with_scanner(
             port=api_server.api_port,
-            api_key=api_server.api_key
+            api_key=api_server.api_key,
+            local_ip=api_server.local_ip
         ):
             logger.info("PC client successfully registered with package scanner API.")
             break

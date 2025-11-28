@@ -16,6 +16,7 @@ class APIServer:
         self.api_host = "0.0.0.0"
         self.api_port = 8000
         self.api_key = None
+        self.local_ip = None
 
         self.load_config()
 
@@ -31,12 +32,14 @@ class APIServer:
         try:
             config_data = ConfigLoader("api_server").load_config()
             self.api_key = config_data["api_key"]
+            self.local_ip = config_data["local_ip"]
 
         except Exception as e:
             logger.error(f"Error loading API server config: {e}")
 
     def open_order_search_webpage(self, order_number: str):
         url = f"https://ship14.shipstation.com/orders/all-orders-search-result?quickSearch={order_number}"
+        logger.debug(f"Opening order webpage: {url}")
         webbrowser.open(url)
 
     def run_api_server(self):
