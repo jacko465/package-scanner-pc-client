@@ -28,6 +28,12 @@ class APIServer:
             
             self.open_order_search_webpage(req.order_number)
 
+        @self.app.get("/check_connection_active")
+        def check_connection_active(authorisation: str = Header(None)):
+            if authorisation != self.api_key:
+                raise HTTPException(status_code=401, detail="Unauthorized")
+            return {"status": "active"}
+
     def load_config(self):
         try:
             config_data = ConfigLoader("api_server").load_config()
