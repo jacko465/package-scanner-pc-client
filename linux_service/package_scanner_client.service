@@ -4,7 +4,12 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=python3 /home/minizali/package-scanner-pc-client/main.python3
+
+User=minizali
+
+WorkingDirectory=/home/minizali/package-scanner-pc-client
+
+ExecStart=/usr/bin/python3 /home/minizali/package-scanner-pc-client/main.py
 
 Restart=always
 RestartSec=3
