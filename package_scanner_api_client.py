@@ -48,6 +48,17 @@ class PackageScannerAPIClient:
             logger.error(f"Failed to register PC client with package scanner: {e}")
             return False
 
+    def check_connection_is_active(self):
+        headers = {"authorisation": self.api_key}
+
+        try:
+            response = requests.get(f"{self.base_url}/check_connection_active", headers=headers, timeout=5)
+            response.raise_for_status()
+            return True
+        except Exception as e:
+            logger.error(f"Connection check failed: {e}")
+            return False
+
     def get_local_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))

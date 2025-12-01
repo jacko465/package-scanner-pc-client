@@ -56,9 +56,13 @@ def main():
     api_server_thread.start()
     try:
         while True:
-            sleep(1)
+            connected = package_scanner_api_client.check_connection_is_active()
+            if not connected:
+                logger.info("Connection to package scanner API lost.")
+                break
+            sleep(10)
     finally:
-        logger.info("Shutdown signal received. Shutting down...")
+        logger.info("Shutting down...")
         shutdown_event.set()
         api_server_thread.join()
         logger.info("Companion client shut down gracefully.")
