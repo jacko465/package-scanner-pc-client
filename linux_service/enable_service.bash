@@ -1,0 +1,2 @@
+sudo systemctl enable package_scanner_client.service
+sudo systemctl start package_scanner_client.service

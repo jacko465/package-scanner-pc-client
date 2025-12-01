@@ -1,0 +1,13 @@
+[Unit]
+Description=Package Scanner Client Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=python3 /home/minizali/package-scanner-pc-client/main.python3
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
