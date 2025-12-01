@@ -34,33 +34,40 @@ logger = logging.getLogger(__name__)
 logger.info("Logger initialised")
 
 def main():
-    # shipstation_api_client = ShipStationAPIClient()
-    shutdown_event = threading.Event()
-    api_server = APIServer(shutdown_event)
-    api_server_thread = threading.Thread(target=api_server.run_api_server, daemon=True)
-    package_scanner_api_client = PackageScannerAPIClient()
-
-    logger.info("Registering PC client with package scanner API...")
-    while True:
-        if package_scanner_api_client.register_pc_client_with_scanner(
-            port=api_server.api_port,
-            api_key=api_server.api_key,
-            local_ip=api_server.local_ip
-        ):
-            logger.info("PC client successfully registered with package scanner API.")
-            break
-        logger.info("Retrying registration in 5 seconds...")
-        sleep(5)
-
-    logger.info("Starting API server...")
-    api_server_thread.start()
     try:
         while True:
-            connected = package_scanner_api_client.check_connection_is_active()
-            if not connected:
-                logger.info("Connection to package scanner API lost.")
-                break
-            sleep(10)
+            # shipstation_api_client = ShipStationAPIClient()
+            shutdown_event = threading.Event()
+            api_server = APIServer(shutdown_event)
+            api_server_thread = threading.Thread(target=api_server.run_api_server, daemon=True)
+            package_scanner_api_client = PackageScannerAPIClient()
+
+            logger.info("Registering PC client with package scanner API...")
+            while True:
+                if package_scanner_api_client.register_pc_client_with_scanner(
+                    port=api_server.api_port,
+                    api_key=api_server.api_key,
+                    local_ip=api_server.local_ip
+                ):
+                    logger.info("PC client successfully registered with package scanner API.")
+                    break
+                logger.info("Retrying registration in 5 seconds...")
+                sleep(5)
+
+            logger.info("Starting API server...")
+            api_server_thread.start()
+            try:
+                while True:
+                    connected = package_scanner_api_client.check_connection_is_active()
+                    if not connected:
+                        logger.info("Connection to package scanner API lost.")
+                        break
+                    sleep(10)
+            finally:
+                logger.info("Shutting down API server...")
+                shutdown_event.set()
+                api_server_thread.join()
+                logger.info("API server shut down.")
     finally:
         logger.info("Shutting down...")
         shutdown_event.set()
