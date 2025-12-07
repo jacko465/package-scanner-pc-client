@@ -1,2 +1,2 @@
-sudo systemctl stop package_scanner_client.service
-sudo systemctl disable package_scanner_client.service
+systemctl --user stop package_scanner_client.service
+systemctl --user disable package_scanner_client.service
