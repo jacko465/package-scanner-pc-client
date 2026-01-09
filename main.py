@@ -1,9 +1,12 @@
-import os
 from api_server import APIServer
 from package_scanner_api_client import PackageScannerAPIClient
 from shipstation_api_client import ShipStationAPIClient
+
+import os
 from time import sleep
 import threading
+import signal
+import sys
 
 import logging
 # init logging
@@ -33,7 +36,34 @@ root_logger.addHandler(console_handler)
 logger = logging.getLogger(__name__)
 logger.info("Logger initialised")
 
+# Global stop flag for service shutdown
+stop_requested = threading.Event()
+
+def request_stop(reason: str):
+    if not stop_requested.is_set():
+        logger.info(f"Stop requested ({reason})")
+        stop_requested.set()
+
+def _handle_signal(signum, frame):
+    # Called on service stop / Ctrl+C / Ctrl+Break (depending on platform)
+    try:
+        signame = signal.Signals(signum).name
+    except Exception:
+        signame = str(signum)
+    request_stop(signame)
+
+# Register handlers (Windows services commonly trigger terminate/ctrl-break paths)
+for sig_name in ("SIGTERM", "SIGINT", "SIGBREAK"):
+    if hasattr(signal, sig_name):
+        try:
+            signal.signal(getattr(signal, sig_name), _handle_signal)
+        except Exception:
+            pass
+
 def main():
+    api_server_thread = None
+    shutdown_event = None
+
     try:
         while True:
             # shipstation_api_client = ShipStationAPIClient()
@@ -52,17 +82,23 @@ def main():
                     logger.info("PC client successfully registered with package scanner API.")
                     break
                 logger.info("Retrying registration in 5 seconds...")
-                sleep(5)
+                # interruptible sleep
+                if stop_requested.wait(5):
+                    break
+
+            if stop_requested.is_set():
+                break
 
             logger.info("Starting API server...")
             api_server_thread.start()
             try:
-                while True:
+                while not stop_requested.is_set():
                     connected = package_scanner_api_client.check_connection_is_active()
                     if not connected:
                         logger.info("Connection to package scanner API lost.")
                         break
-                    sleep(10)
+                    if stop_requested.wait(10):
+                        break
             finally:
                 logger.info("Shutting down API server...")
                 shutdown_event.set()
@@ -70,8 +106,10 @@ def main():
                 logger.info("API server shut down.")
     finally:
         logger.info("Shutting down...")
-        shutdown_event.set()
-        api_server_thread.join()
+        if shutdown_event:
+            shutdown_event.set()
+        if api_server_thread:
+            api_server_thread.join()
         logger.info("Companion client shut down gracefully.")
 
 
