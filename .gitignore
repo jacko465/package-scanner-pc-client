@@ -5,3 +5,4 @@ log/
 config/
 dist/
 build/
+*.spec
