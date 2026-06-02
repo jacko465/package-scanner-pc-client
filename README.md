@@ -60,3 +60,22 @@ pip install -r requirements.txt
 ```
 
 To deactivate the venv when done, run `deactivate`.
+
+## Compiling to Executable (PyInstaller)
+
+Install PyInstaller:
+```
+pip install pyinstaller
+```
+
+Compile to a single executable:
+```
+pyinstaller --onefile main.py
+```
+
+Without visible console:
+```
+pyinstaller --onefile --noconsole main.py
+```
+
+The compiled executable will be output to the `dist/` directory.
